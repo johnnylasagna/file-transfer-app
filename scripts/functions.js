@@ -1,5 +1,9 @@
 const { dialog } = require('electron')
 const bonjour = require('bonjour')();
+const express = require('express');
+const basicAuth = require('express-basic-auth');
+const serveIndex = require('serve-index');
+const http = require('http');
 
 // To handle file/folder open dialogues
 async function handleFileOpen() {
@@ -18,12 +22,6 @@ async function handleFolderOpen() {
 	}
 }
 
-// To run shell scripts
-const { spawn } = require('node:child_process')
-
-let serverProcess = null
-let bonjourService = null
-
 const net = require('net');
 
 function getAvailablePort(startPort = 8000) {
@@ -37,63 +35,64 @@ function getAvailablePort(startPort = 8000) {
 	});
 }
 
-async function startFolderServer(folderPath, broadcastName) {
+let expressServer = null;
+let bonjourService = null
+
+async function startFolderServer(folderPath, broadcastName, username = "admin", password = "password123") {
 	return new Promise(async (resolve, reject) => {
-		if (serverProcess) {
-			serverProcess.kill();
-			serverProcess = null;
+		if (expressServer) {
+			expressServer.close();
 		}
 
 		let port;
 		try {
 			port = await getAvailablePort(8000);
-			console.log('Using port:', port);
 		} catch (error) {
-			console.error('Error getting port:', error);
 			return reject(error);
 		}
 
-		const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-		serverProcess = spawn(pythonCmd, ['-m', 'http.server', String(port)], {
-			cwd: folderPath
+		const app = express();
+
+		// Require password for all routes
+		app.use(basicAuth({
+			users: { [username]: password },
+			challenge: true,
+			realm: 'FileTransferApp'
+		}));
+
+		// Serve static files and directory listing
+		app.use('/', express.static(folderPath));
+		app.use('/', serveIndex(folderPath, { 'icons': true }));
+
+		expressServer = http.createServer(app);
+
+		expressServer.listen(port, () => {
+			const safeName = (broadcastName && broadcastName.trim() !== "") ? broadcastName : "LocalFolderServer";
+
+			if (!bonjourService) {
+				bonjourService = bonjour.publish({
+					name: safeName,
+					type: 'http',
+					port: port
+				});
+			}
+			resolve(port);
 		});
 
-		serverProcess.stderr.on('data', (data) => {
-			console.error('Server error:', data.toString());
-		});
-
-		serverProcess.on('error', (err) => {
+		expressServer.on('error', (err) => {
 			reject(err);
 		});
-
-		// Resolve once the server starts
-		serverProcess.stdout.on('data', () => resolve(port));
-		setTimeout(() => resolve(port), 500); // fallback if no stdout
-
-		if (!bonjourService) {
-			bonjourService = bonjour.publish({
-				name: broadcastName,
-				type: 'http',
-				port: port  // ✅ use dynamic port
-			});
-
-			if (bonjourService) {
-				console.log('Bonjour Service Details:');
-				console.log(`Name: ${bonjourService.name}`);
-				console.log(`Type: ${bonjourService.type}`);
-				console.log(`Port: ${bonjourService.port}`);
-				console.log(`Host: ${bonjourService.host}`);
-			}
-		}
 	});
 }
 
 function stopServer() {
-	if (serverProcess) {
-		serverProcess.kill();
+	if (expressServer) {
+		expressServer.close();
+		expressServer = null;
 	}
 	if (bonjourService) {
 		bonjourService.stop();
+		bonjourService = null;
 	}
 }
 

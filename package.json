@@ -14,7 +14,10 @@
   },
   "dependencies": {
     "bonjour": "^3.5.1",
+    "express": "^5.2.1",
+    "express-basic-auth": "^1.2.1",
     "get-port": "^6.1.2",
-    "net": "^1.0.2"
+    "net": "^1.0.2",
+    "serve-index": "^1.9.2"
   }
 }

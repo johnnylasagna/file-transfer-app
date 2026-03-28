@@ -11,5 +11,10 @@
   },
   "devDependencies": {
     "electron": "^41.0.4"
+  },
+  "dependencies": {
+    "bonjour": "^3.5.1",
+    "get-port": "^6.1.2",
+    "net": "^1.0.2"
   }
 }

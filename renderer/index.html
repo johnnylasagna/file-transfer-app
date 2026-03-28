@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'" />
 	<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
 	<title>Hello from Electron renderer!</title>
 	<link rel="stylesheet" href="./styles.css">
@@ -13,19 +13,23 @@
 
 <body>
 	<div class="main-wrapper">
-		<div class="button-wrapper">
+		<div class="wrapper">
 			<button type="button" id="fileBtn" class="dialog-button">Open a file</button>
 			<span>
 				File Path: <strong id="filePath"></strong>
 			</span>
 			<button type="button" id="fileServerBtn" class="dialog-button">Start file transfer server</button>
 		</div>
-		<div class="button-wrapper">
+		<div class="wrapper">
 			<button type="button" id="folderBtn" class="dialog-button">Open a folder</button>
 			<span>
-				File Path: <strong id="folderPath"></strong>
+				Folder Path: <strong id="folderPath"></strong>
 			</span>
 			<button type="button" id="folderServerBtn" class="dialog-button">Start folder transfer server</button>
+		</div>
+		<div class="wrapper">
+
+			<input type="text" id="broadcastName"/>
 		</div>
 	</div>
 </body>

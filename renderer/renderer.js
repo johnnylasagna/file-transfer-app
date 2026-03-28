@@ -23,8 +23,11 @@ folderBtn.addEventListener('click', async () => {
 folderServerStartBtn.addEventListener('click', async () => {
     const folderPath = folderPathElement.innerText
 
+    const broadcastName = document.getElementById("broadcastName").value;
+    console.log(broadcastName);
+
     if (folderPath && folderPath.trim() !== "") {
-        await window.electronAPI.startFolderServer(folderPath)
+        await window.electronAPI.startFolderServer(folderPath, broadcastName)
         console.log('Server started')
     }
 })

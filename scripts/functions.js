@@ -82,6 +82,8 @@ async function startFolderServer(folderPath, broadcastName, username = "admin", 
 		expressServer.on('error', (err) => {
 			reject(err);
 		});
+
+		console.log('Server started')
 	});
 }
 
@@ -94,6 +96,7 @@ function stopServer() {
 		bonjourService.stop();
 		bonjourService = null;
 	}
+	console.log('Server stopped')
 }
 
 module.exports = { handleFileOpen, handleFolderOpen, startFolderServer, stopServer }

@@ -1,10 +1,11 @@
 const { ipcMain } = require('electron/main')
-const { handleFileOpen, handleFolderOpen, startFolderServer } = require('./functions')
+const { handleFileOpen, handleFolderOpen, startFolderServer, stopServer } = require('./functions')
 
 function ipcHandlers() {
     ipcMain.handle('dialog:openFile', handleFileOpen)
     ipcMain.handle('dialog:openFolder', handleFolderOpen)
-    ipcMain.handle('start-server:folder', async (event, folderPath, broadcastName) => { return await startFolderServer(folderPath, broadcastName) })
+    ipcMain.handle('server:start', async (event, folderPath, broadcastName, username, password) => { return await startFolderServer(folderPath, broadcastName, username, password) })
+    ipcMain.handle('server:stop', stopServer)
 }
 
 module.exports = ipcHandlers;

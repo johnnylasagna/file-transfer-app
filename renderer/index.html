@@ -3,63 +3,64 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-	<!-- Remove this to allow Live Preview on VS Code-->
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'" />
-	<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+	<meta http-equiv="Content-Security-Policy"
+		content="default-src 'self'; script-src 'self' 'unsafe-eval' https://unpkg.com type='module'; style-src 'self' 'unsafe-inline'" />
 	<title>Hello from Electron renderer!</title>
 	<link rel="stylesheet" href="./styles.css">
-
+	<script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
 </head>
 
 <body>
-	<div class="tab" id="Sharing">
-		<div class="main-wrapper">
-			<span class="main-wrapper-heading">
-				Server Settings:
-			</span>
-			<div class="wrapper">
-				<div>Folder Path:
-					<span id="folderPath">
-					</span>
-				</div>
-				<div class="button-wrapper">
-					<button type="button" id="folderBtn" class="dialog-button">Open a folder</button>
-					<button type="button" id="folderServerBtn" class="dialog-button">Start folder transfer
-						server</button>
-				</div>
-			</div>
-			<div class="wrapper">
-				<span>Add Files</span>
-				<div class="button-wrapper">
-					<button type="button" id="addFiles" class="dialog-button">Add files</button>
-				</div>
-			</div>
-		</div>
-		<div class="main-wrapper">
-			<span class="main-wrapper-heading">
-				Host Settings:
-			</span>
-			<div class="wrapper">
-				<span>Hostname</span>
-				<input type="text" id="broadcastName" />
-			</div>
-		</div>
-		<div class="main-wrapper">
-			<span class="main-wrapper-heading">
-				Authentication Settings
-			</span>
-			<div class="wrapper">
-				<span>Username</span>
-				<input type="text" id="broadcastName" />
-				<span>Password</span>
-				<input type="text" id="broadcastName" />
-				<button type="button" id="folderServerBtn" class="dialog-button">Update Credentials</button>
-			</div>
-		</div>
-	</div>
+	<fluent-tabs id="settingsTabs">
+		<fluent-tab id="serverTab">Server Settings</fluent-tab>
+		<fluent-tab id="hostTab">Host Settings</fluent-tab>
+		<fluent-tab id="authTab">Authentication Settings</fluent-tab>
+		<fluent-tab id="findTab">Find Servers</fluent-tab>
 
+		<fluent-tab-panel id="serverPanel">
+			<div class="panel-content">
+				<div class="control-group">
+					<fluent-label>Folder Path:</fluent-label>
+					<span id="folderPath">None selected</span>
+				</div>
+				<div class="control-group">
+					<fluent-button id="folderBtn" appearance="accent">Open a folder</fluent-button>
+					<fluent-button id="addFiles" appearance="neutral">Add files</fluent-button>
+				</div>
+				<div class="control-group">
+					<fluent-label>Start folder transfer server:</fluent-label>
+					<fluent-switch id="folderServerSwitch"></fluent-switch>
+				</div>
+			</div>
+		</fluent-tab-panel>
+
+		<fluent-tab-panel id="hostPanel">
+			<div class="panel-content">
+				<fluent-text-field id="hostnameInput">Hostname</fluent-text-field>
+				<div class="control-group">
+					<fluent-button id="updateHostnameBtn" appearance="accent">Update Hostname</fluent-button>
+				</div>
+			</div>
+		</fluent-tab-panel>
+
+		<fluent-tab-panel id="authPanel">
+			<div class="panel-content">
+				<fluent-text-field id="usernameInput">Username</fluent-text-field>
+				<fluent-text-field id="passwordInput" type="password">Password</fluent-text-field>
+				<div class="control-group">
+					<fluent-button id="updateCredentialsBtn" appearance="accent">Update Credentials</fluent-button>
+				</div>
+			</div>
+		</fluent-tab-panel>
+
+		<fluent-tab-panel id="findPanel">
+			<div class="panel-content">
+				<fluent-label>Available Servers:</fluent-label>
+			</div>
+		</fluent-tab-panel>
+	</fluent-tabs>
+
+	<script src="./renderer.js"></script>
 </body>
-<script src="./renderer.js"></script>
 
 </html>

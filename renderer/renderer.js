@@ -31,3 +31,4 @@ folderServerStartBtn.addEventListener('click', async () => {
         console.log('Server started')
     }
 })
+

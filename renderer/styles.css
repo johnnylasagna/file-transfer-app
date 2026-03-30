@@ -4,15 +4,11 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     height: 100vh;
-
-    justify-content: center;
-    align-items: center;
+    width: 100vw;
 
     background-color: #000B58;
-
-    gap: 20px;
 }
 
 .main-wrapper {
@@ -20,8 +16,6 @@ body {
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
 
     background-color: #003161;
     border: medium black solid;
@@ -29,13 +23,18 @@ body {
     gap: 20px;
 }
 
+.main-wrapper-heading {
+    margin: 0;
+    padding: 0;
+
+    color: white;
+}
+
 .wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
 
-    flex:1;
+    width: fit-content;
 
     background-color: #FFF4B7;
     border: medium black solid;
@@ -46,10 +45,18 @@ body {
 
 .dialog-button {
     padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: medium;
 
     color: #003161;
     border: thin black solid;
     cursor: pointer;
+}
+
+.tab {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #000B58;
+
+    flex: 1;
 }

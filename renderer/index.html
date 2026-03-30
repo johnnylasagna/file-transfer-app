@@ -13,29 +13,52 @@
 </head>
 
 <body>
-	<div class="main-wrapper">
-		<div class="wrapper">
-			<button type="button" id="fileBtn" class="dialog-button">Open 
-				a file</button>
-			<span id="filePath">
-				File Path:
+	<div class="tab" id="Sharing">
+		<div class="main-wrapper">
+			<span class="main-wrapper-heading">
+				Server Settings:
 			</span>
-			<button type="button" id="fileServerBtn" class="dialog-button">Start file transfer server</button>
+			<div class="wrapper">
+				<div>Folder Path:
+					<span id="folderPath">
+					</span>
+				</div>
+				<div class="button-wrapper">
+					<button type="button" id="folderBtn" class="dialog-button">Open a folder</button>
+					<button type="button" id="folderServerBtn" class="dialog-button">Start folder transfer
+						server</button>
+				</div>
+			</div>
+			<div class="wrapper">
+				<span>Add Files</span>
+				<div class="button-wrapper">
+					<button type="button" id="addFiles" class="dialog-button">Add files</button>
+				</div>
+			</div>
 		</div>
-		<div class="wrapper">
-			<button type="button" id="folderBtn" class="dialog-button">Open a folder</button>
-			<span id="folderPath">
-				Folder Path
+		<div class="main-wrapper">
+			<span class="main-wrapper-heading">
+				Host Settings:
 			</span>
-			<button type="button" id="folderServerBtn" class="dialog-button">Start folder transfer server</button>
+			<div class="wrapper">
+				<span>Hostname</span>
+				<input type="text" id="broadcastName" />
+			</div>
+		</div>
+		<div class="main-wrapper">
+			<span class="main-wrapper-heading">
+				Authentication Settings
+			</span>
+			<div class="wrapper">
+				<span>Username</span>
+				<input type="text" id="broadcastName" />
+				<span>Password</span>
+				<input type="text" id="broadcastName" />
+				<button type="button" id="folderServerBtn" class="dialog-button">Update Credentials</button>
+			</div>
 		</div>
 	</div>
-	<div class="main-wrapper">
-		<div class="wrapper">
-			<span>Hostname</span>
-			<input type="text" id="broadcastName"/>
-		</div>
-	</div>
+
 </body>
 <script src="./renderer.js"></script>
 

@@ -38,17 +38,43 @@ function getAvailablePort(startPort = 8000) {
 let expressServer = null;
 let bonjourService = null
 
-async function startFolderServer(folderPath, hostname, username, password) {
-	return new Promise(async (resolve, reject) => {
-		if (expressServer) {
-			expressServer.close();
-			expressServer = null;
+function closeExpressServer() {
+	return new Promise((resolve) => {
+		if (!expressServer) {
+			return resolve();
 		}
 
-		if (bonjourService) {
-			bonjourService.stop(); 
-			bonjourService = null;
+		expressServer.close(() => {
+			expressServer = null;
+			resolve();
+		});
+	});
+}
+
+function stopBonjourService() {
+	return new Promise((resolve) => {
+		if (!bonjourService) {
+			return resolve();
 		}
+
+		bonjourService.stop(() => {
+			bonjourService = null;
+			resolve();
+		});
+	});
+}
+
+function unpublishBonjourServices() {
+	return new Promise((resolve) => {
+		bonjour.unpublishAll(() => resolve());
+	});
+}
+
+async function startFolderServer(folderPath, hostname, username, password) {
+	return new Promise(async (resolve, reject) => {
+		await closeExpressServer();
+		await stopBonjourService();
+		await unpublishBonjourServices();
 
 		let port;
 		try {
@@ -79,7 +105,13 @@ async function startFolderServer(folderPath, hostname, username, password) {
 				bonjourService = bonjour.publish({
 					name: safeName,
 					type: 'http',
-					port: port
+					port: port,
+					probe: false
+				});
+
+				// Prevents service-name conflicts from crashing the Electron main process.
+				bonjourService.on('error', (err) => {
+					console.error('Bonjour publish error:', err.message);
 				});
 			}
 			resolve(port);
@@ -95,14 +127,9 @@ async function startFolderServer(folderPath, hostname, username, password) {
 
 async function stopServer() {
 	return new Promise(async (resolve, reject) => {
-		if (expressServer) {
-			expressServer.close();
-			expressServer = null;
-		}
-		if (bonjourService) {
-			bonjourService.stop();
-			bonjourService = null;
-		}
+		await closeExpressServer();
+		await stopBonjourService();
+		await unpublishBonjourServices();
 		console.log('Server stopped')
 		resolve();
 	});

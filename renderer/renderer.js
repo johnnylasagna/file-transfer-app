@@ -1,6 +1,7 @@
 const folderPathElement = document.getElementById('folderPath')
 const folderBtn = document.getElementById('folderBtn')
 const folderServerSwitch = document.getElementById('folderServerSwitch')
+const folderServerSwitchText = document.getElementById('folderServerSwitchText')
 
 const updateHostnameBtn = document.getElementById('updateHostnameBtn');
 const hostnameInput = document.getElementById('hostnameInput')
@@ -37,11 +38,11 @@ async function applyServerSettings() {
         if (folderPath && folderPath.trim() !== "" && folderPath !== "None selected") {
             await window.electronAPI.startFolderServer(folderPath, broadcastName, username, password)
             console.log('Server running')
-            folderServerSwitch.innerText = "Stop folder transfer server"
+            folderServerSwitchText.innerText = "Stop folder transfer server:"
         } else {
             console.log('Cannot start server: No valid folder selected')
             folderServerSwitch.checked = false
-            folderServerSwitch.innerText = "Start folder transfer server"
+            folderServerSwitchText.innerText = "Start folder transfer server:"
         }
     } else {
         console.log('Settings saved. Will apply upon next server start.')
@@ -56,7 +57,7 @@ folderServerSwitch.addEventListener('change', async (event) => {
     } else {
         await window.electronAPI.stopFolderServer()
         console.log('Server stopped')
-        folderServerSwitch.innerText = "Start folder transfer server"
+        folderServerSwitchText.innerText = "Start folder transfer server:"
     }
 })
 
@@ -82,9 +83,11 @@ function createServerAccordionItem(server) {
     contentDiv.innerHTML = `
         <div><strong>Host Name:</strong> ${server.host}</div>
         <div><strong>IP Address:</strong> ${ipAddress}:${server.port}</div>
-        <fluent-button appearance="accent" onclick="window.open('http://${ipAddress}:${server.port}', '_blank')" style="margin-top: 10px;">
-            Open in Browser
-        </fluent-button>
+        <div class="control-group">
+            <fluent-button appearance="accent" onclick="window.open('http://${ipAddress}:${server.port}', '_blank')" style="margin-top: 10px;">
+                Open in Browser
+            </fluent-button>
+        </div>
     `;
 
     accordionItem.appendChild(contentDiv);

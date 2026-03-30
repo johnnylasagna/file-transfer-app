@@ -7,8 +7,8 @@ const path = require('node:path')
 const createWindow = () => {
     // Defining how window is created
     const win = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1200,
+        height: 800,
         titleBarStyle: 'hidden',
         resizable: true,
         frame: false,

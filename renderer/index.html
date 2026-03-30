@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+	<!-- Remove this to allow Live Preview on VS Code-->
 	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'" />
 	<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
 	<title>Hello from Electron renderer!</title>
@@ -14,21 +15,24 @@
 <body>
 	<div class="main-wrapper">
 		<div class="wrapper">
-			<button type="button" id="fileBtn" class="dialog-button">Open a file</button>
-			<span>
-				File Path: <strong id="filePath"></strong>
+			<button type="button" id="fileBtn" class="dialog-button">Open 
+				a file</button>
+			<span id="filePath">
+				File Path:
 			</span>
 			<button type="button" id="fileServerBtn" class="dialog-button">Start file transfer server</button>
 		</div>
 		<div class="wrapper">
 			<button type="button" id="folderBtn" class="dialog-button">Open a folder</button>
-			<span>
-				Folder Path: <strong id="folderPath"></strong>
+			<span id="folderPath">
+				Folder Path
 			</span>
 			<button type="button" id="folderServerBtn" class="dialog-button">Start folder transfer server</button>
 		</div>
+	</div>
+	<div class="main-wrapper">
 		<div class="wrapper">
-
+			<span>Hostname</span>
 			<input type="text" id="broadcastName"/>
 		</div>
 	</div>

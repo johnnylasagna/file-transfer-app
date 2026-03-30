@@ -11,8 +11,8 @@ const createWindow = () => {
         height: 600,
         titleBarStyle: 'hidden',
         resizable: true,
-        frame: false,
-        transparent: true,
+        // frame: false,
+        // transparent: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }

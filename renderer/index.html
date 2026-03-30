@@ -55,7 +55,11 @@
 
 		<fluent-tab-panel id="findPanel">
 			<div class="panel-content">
-				<fluent-label>Available Servers:</fluent-label>
+				<div class="control-group" style="justify-content: space-between;">
+					<fluent-label weight="semibold">Available Servers</fluent-label>
+					<fluent-button id="refreshServersBtn" appearance="neutral">Scan for Servers</fluent-button>
+				</div>
+				<fluent-accordion id="serversAccordion"></fluent-accordion>
 			</div>
 		</fluent-tab-panel>
 	</fluent-tabs>

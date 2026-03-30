@@ -38,10 +38,16 @@ function getAvailablePort(startPort = 8000) {
 let expressServer = null;
 let bonjourService = null
 
-async function startFolderServer(folderPath, broadcastName, username = "admin", password = "password123") {
+async function startFolderServer(folderPath, hostname, username, password) {
 	return new Promise(async (resolve, reject) => {
 		if (expressServer) {
 			expressServer.close();
+			expressServer = null;
+		}
+
+		if (bonjourService) {
+			bonjourService.stop(); 
+			bonjourService = null;
 		}
 
 		let port;
@@ -67,7 +73,7 @@ async function startFolderServer(folderPath, broadcastName, username = "admin", 
 		expressServer = http.createServer(app);
 
 		expressServer.listen(port, () => {
-			const safeName = (broadcastName && broadcastName.trim() !== "") ? broadcastName : "LocalFolderServer";
+			const safeName = (hostname && hostname.trim() !== "") ? hostname : "LocalFolderServer";
 
 			if (!bonjourService) {
 				bonjourService = bonjour.publish({
@@ -87,16 +93,19 @@ async function startFolderServer(folderPath, broadcastName, username = "admin", 
 	});
 }
 
-function stopServer() {
-	if (expressServer) {
-		expressServer.close();
-		expressServer = null;
-	}
-	if (bonjourService) {
-		bonjourService.stop();
-		bonjourService = null;
-	}
-	console.log('Server stopped')
+async function stopServer() {
+	return new Promise(async (resolve, reject) => {
+		if (expressServer) {
+			expressServer.close();
+			expressServer = null;
+		}
+		if (bonjourService) {
+			bonjourService.stop();
+			bonjourService = null;
+		}
+		console.log('Server stopped')
+		resolve();
+	});
 }
 
 module.exports = { handleFileOpen, handleFolderOpen, startFolderServer, stopServer }

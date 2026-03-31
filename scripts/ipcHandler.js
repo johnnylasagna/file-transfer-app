@@ -1,5 +1,5 @@
 const { ipcMain } = require('electron/main')
-const { handleFileOpen, handleFolderOpen, startFolderServer, stopServer } = require('./functions')
+const { handleFileOpen, handleFolderOpen, startFolderServer, stopServer } = require('./server')
 const findServers = require('./findServers')
 
 function ipcHandlers() {

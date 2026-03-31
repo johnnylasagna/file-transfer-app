@@ -1,18 +1,23 @@
+// Folder Elements
 const folderPathElement = document.getElementById('folderPath')
 const folderBtn = document.getElementById('folderBtn')
 const folderServerSwitch = document.getElementById('folderServerSwitch')
 const folderServerSwitchText = document.getElementById('folderServerSwitchText')
 
+// Hostname Elements
 const updateHostnameBtn = document.getElementById('updateHostnameBtn');
 const hostnameInput = document.getElementById('hostnameInput')
 
+// Credential Elements
 const updateCredentialsBtn = document.getElementById('updateCredentialsBtn');
 const usernameInput = document.getElementById('usernameInput')
 const passwordInput = document.getElementById('passwordInput')
 
+// Server Elements
 const refreshServersBtn = document.getElementById('refreshServersBtn')
 const serversAccordion = document.getElementById('serversAccordion')
 
+// Changes current shared folder
 folderBtn.addEventListener('click', async () => {
     const folderPath = await window.electronAPI.openFolder()
 
@@ -24,6 +29,7 @@ folderBtn.addEventListener('click', async () => {
     }
 })
 
+// Common function to restart server whenever changes take place
 async function applyServerSettings() {
     const isChecked = folderServerSwitch.checked
     const folderPath = folderPathElement.innerText
@@ -49,6 +55,7 @@ async function applyServerSettings() {
     }
 }
 
+// Turns server on and off
 folderServerSwitch.addEventListener('change', async (event) => {
     const isChecked = event.target.checked
 
@@ -57,13 +64,16 @@ folderServerSwitch.addEventListener('change', async (event) => {
     } else {
         await window.electronAPI.stopFolderServer()
         console.log('Server stopped')
+        await startServerScan();
         folderServerSwitchText.innerText = "Start folder transfer server:"
     }
 })
 
+// Restart server when there are changes to hostname or credentials
 updateHostnameBtn.addEventListener('click', applyServerSettings)
 updateCredentialsBtn.addEventListener('click', applyServerSettings)
 
+// Create server item 
 function createServerAccordionItem(server) {
     const accordionItem = document.createElement('fluent-accordion-item');
 
@@ -94,11 +104,14 @@ function createServerAccordionItem(server) {
     serversAccordion.appendChild(accordionItem);
 }
 
+// Scan servers and create server items
 async function startServerScan() {
     serversAccordion.innerHTML = '';
     await window.electronAPI.findServers(createServerAccordionItem);
 }
 
+// Force rescanning of servers
 refreshServersBtn.addEventListener('click', startServerScan);
 
+// Find servers as soon as app starts
 startServerScan();

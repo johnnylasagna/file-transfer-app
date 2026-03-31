@@ -1,6 +1,6 @@
 const { app } = require('electron')
 const createWindow = require('./scripts/window');
-const { stopServer } = require('./scripts/functions');
+const { stopServer } = require('./scripts/server');
 const ipcHandlers = require('./scripts/ipcHandler');
 
 // Only runs when electron starts

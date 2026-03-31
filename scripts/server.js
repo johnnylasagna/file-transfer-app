@@ -1,29 +1,45 @@
+// Import for file/folder choosing dialogue
 const { dialog } = require('electron')
+
+// Imports for server
 const bonjour = require('bonjour')();
 const express = require('express');
 const basicAuth = require('express-basic-auth');
-const serveIndex = require('serve-index');
-const http = require('http');
 
-// To handle file/folder open dialogues
+// Imports for serving and port finding
+const http = require('http');
+const net = require('net');
+
+// Imports for downloading files
+const fs = require('fs');
+const path = require('path');
+const archiver = require('archiver');
+
+// Setup for server
+let expressServer = null;
+let bonjourService = null
+
+// To handle file open dialogue box
 async function handleFileOpen() {
-	const { cancelled, filePaths } = await dialog.showOpenDialog({})
-	if (!cancelled) {
+	const { cancelled, filePaths } = await dialog.showOpenDialog({
+		properties: ['openFile']
+	});
+	if (!cancelled && filePaths.length > 0) {
 		return filePaths[0]
 	}
 }
 
+// To handle folder open dialogue box
 async function handleFolderOpen() {
 	const { cancelled, filePaths } = await dialog.showOpenDialog({
 		properties: ['openDirectory']
 	})
-	if (!cancelled) {
+	if (!cancelled && filePaths.length > 0) {
 		return filePaths[0]
 	}
 }
 
-const net = require('net');
-
+// Find first available port after a certain port
 function getAvailablePort(startPort = 8000) {
 	return new Promise((resolve, reject) => {
 		const server = net.createServer();
@@ -35,9 +51,7 @@ function getAvailablePort(startPort = 8000) {
 	});
 }
 
-let expressServer = null;
-let bonjourService = null
-
+// Closes express server
 function closeExpressServer() {
 	return new Promise((resolve) => {
 		if (!expressServer) {
@@ -51,6 +65,7 @@ function closeExpressServer() {
 	});
 }
 
+// Stops bonjour service
 function stopBonjourService() {
 	return new Promise((resolve) => {
 		if (!bonjourService) {
@@ -64,12 +79,14 @@ function stopBonjourService() {
 	});
 }
 
+// Unpublishes bonjour service
 function unpublishBonjourServices() {
 	return new Promise((resolve) => {
 		bonjour.unpublishAll(() => resolve());
 	});
 }
 
+// Start server in current shared folder
 async function startFolderServer(folderPath, hostname, username, password) {
 	return new Promise(async (resolve, reject) => {
 		await closeExpressServer();
@@ -84,6 +101,7 @@ async function startFolderServer(folderPath, hostname, username, password) {
 		}
 
 		const app = express();
+		app.use(express.json());
 
 		// Require password for all routes
 		app.use(basicAuth({
@@ -92,9 +110,53 @@ async function startFolderServer(folderPath, hostname, username, password) {
 			realm: 'FileTransferApp'
 		}));
 
-		// Serve static files and directory listing
-		app.use('/', express.static(folderPath));
-		app.use('/', serveIndex(folderPath, { 'icons': true }));
+		app.get('/api/files', (req, res) => {
+			const reqPath = req.query.path || '/'
+			const targetPath = path.join(folderPath, reqPath)
+
+			// Prevent access to parent directories
+			if (!targetPath.startsWith(folderPath)) {
+				return res.status(403).json({ error: 'Forbidden' });
+			}
+
+			fs.readdir(targetPath, { withFileTypes: true }, (err, files) => {
+				if (err) return res.status(500).json({ error: err.message });
+
+				const result = files.map(f => ({
+					name: f.name,
+					isDirectory: f.isDirectory(),
+					relativePath: path.join(reqPath, f.name).replace(/\\/g, '/')
+				}));
+				res.json(result);
+			});
+
+			// Endpoint to download multiple files 
+			app.post('/api/download-zip', (req, res) => {
+				const { files } = req.body;
+				if (!files || files.length === 0) {
+					return res.status(400).send("No files selected")
+				}
+
+				// Allow files to be directly zipped in memory
+				res.attachment('download.zip');
+				const archive = archiver('zip', { zlib: { level: 9 } });
+				archive.pipe(res);
+
+				files.forEach(file => {
+					const fullPath = path.join(folderPath, file);
+					// Security: Ensure file is within shared directory and exists
+					if (fullPath.startsWith(folderPath) && fs.existsSync(fullPath)) {
+						archive.file(fullPath, { name: path.basename(file) });
+					}
+				});
+
+				archive.finalize();
+			})
+		})
+
+		app.use('/preview', express.static(folderPath));
+
+		app.use('/', express.static(path.join(__dirname, 'public')));
 
 		expressServer = http.createServer(app);
 
@@ -125,6 +187,7 @@ async function startFolderServer(folderPath, hostname, username, password) {
 	});
 }
 
+// Stop server
 async function stopServer() {
 	return new Promise(async (resolve, reject) => {
 		await closeExpressServer();

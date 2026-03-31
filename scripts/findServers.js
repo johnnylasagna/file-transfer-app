@@ -2,6 +2,7 @@ const bonjour = require('bonjour')();
 
 let bonjourBrowser = null;
 
+// Find servers
 function findServers(event) {
 	if (bonjourBrowser) {
 		bonjourBrowser.stop();

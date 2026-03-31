@@ -10,7 +10,7 @@ async function renderDirectory(path, containerElement) {
     containerElement.innerHTML = '<div style="padding: 8px;">Loading...</div>';
 
     const files = await fetchFiles(path);
-    containerElement.innerHTML = ''; 
+    containerElement.innerHTML = '';
 
     const folders = files.filter(f => f.isDirectory);
     const regularFiles = files.filter(f => !f.isDirectory);
@@ -21,17 +21,33 @@ async function renderDirectory(path, containerElement) {
 
         folders.forEach(folder => {
             const item = document.createElement('fluent-accordion-item');
-            
-            const heading = document.createElement('span');
-            heading.slot = 'heading';
-            heading.textContent = `${folder.name}`;
-            item.appendChild(heading);
+
+            // 1. Create a single container for the entire header row
+            const headingContainer = document.createElement('div');
+            headingContainer.slot = 'heading';
+
+            headingContainer.style.display = 'flex';
+            headingContainer.style.width = '100%';
+            headingContainer.style.justifyContent = 'space-between';
+            headingContainer.style.alignItems = 'center';
+
+            headingContainer.innerHTML = `
+                <span>${folder.name}</span>
+                <fluent-button 
+                    appearance="accent" 
+                    onclick="event.stopPropagation(); toggleCart('${folder.relativePath}', '${folder.name}')"
+                >
+                    Add to Downloads
+                </fluent-button>
+            `;
+
+            item.appendChild(headingContainer);
 
             const contentContainer = document.createElement('div');
             contentContainer.style.display = 'flex';
             contentContainer.style.flexDirection = 'column';
-            contentContainer.style.paddingLeft = '16px'; 
-            
+            contentContainer.style.paddingLeft = '16px';
+
             let isLoaded = false;
 
             // Lazy-load folder contents only when the accordion is expanded
@@ -57,12 +73,12 @@ async function renderDirectory(path, containerElement) {
 
         regularFiles.forEach(file => {
             const fileDiv = document.createElement('div');
-            fileDiv.className = 'item'; 
+            fileDiv.className = 'item';
             fileDiv.innerHTML = `
                 <span class="file">${file.name}</span>
                 <div class="item-actions">
                     <fluent-button appearance="neutral" onclick="window.open('/preview${file.relativePath}', '_blank')">Preview</fluent-button>
-                    <fluent-button appearance="accent" onclick="toggleCart('${file.relativePath}', '${file.name}')">Add to Cart</fluent-button>
+                    <fluent-button appearance="accent" onclick="toggleCart('${file.relativePath}', '${file.name}')">Add to Downloads</fluent-button>
                 </div>
             `;
             fileList.appendChild(fileDiv);
@@ -87,7 +103,7 @@ function toggleCart(path, name) {
 function updateCartUI() {
     const list = document.getElementById('cart-list');
     list.innerHTML = '';
-    
+
     cart.forEach(path => {
         const name = path.split('/').pop();
         const li = document.createElement('li');
@@ -100,7 +116,7 @@ function updateCartUI() {
         `;
         list.appendChild(li);
     });
-    
+
     const downloadBtn = document.getElementById('downloadBtn');
     if (cart.size === 0) {
         downloadBtn.setAttribute('disabled', 'true');

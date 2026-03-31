@@ -88,17 +88,27 @@ function createServerAccordionItem(server) {
     contentDiv.style.gap = '8px';
     contentDiv.style.padding = '10px 0';
 
-    const ipAddress = server.addresses && server.addresses.length > 0 ? server.addresses[0] : 'Unknown IP';
+    const ipv4Addresses = (server.addresses || []).filter(ip => ip.includes('.'));
+
+    const ipList = ipv4Addresses.length > 0 ? ipv4Addresses.join(', ') : 'Unknown IP';
 
     contentDiv.innerHTML = `
         <div><strong>Host Name:</strong> ${server.host}</div>
-        <div><strong>IP Address:</strong> ${ipAddress}:${server.port}</div>
-        <div class="control-group">
-            <fluent-button appearance="accent" onclick="window.open('http://${ipAddress}:${server.port}', '_blank')" style="margin-top: 10px;">
-                Open in Browser
-            </fluent-button>
-        </div>
+        <div><strong>IP Addresses:</strong> ${ipList} (Port: ${server.port})</div>
+        <div class="control-group" id="serverButtons" style="flex-wrap: wrap;"></div>
     `;
+
+    const buttonsContainer = contentDiv.querySelector('#serverButtons');
+    ipv4Addresses.forEach(ip => {
+        const openButton = document.createElement('fluent-button');
+        openButton.setAttribute('appearance', 'accent');
+        openButton.style.marginTop = '10px';
+        openButton.textContent = `Open ${ip}`;
+        openButton.addEventListener('click', () => {
+            window.electronAPI.openInDefaultBrowser(`http://${ip}:${server.port}`);
+        });
+        buttonsContainer.appendChild(openButton);
+    });
 
     accordionItem.appendChild(contentDiv);
     serversAccordion.appendChild(accordionItem);

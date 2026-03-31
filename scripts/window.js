@@ -25,7 +25,7 @@ const createWindow = () => {
     win.loadFile(path.join(__dirname, '../renderer/index.html'))
 
     // Open developer tools
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
 }
 
 module.exports = createWindow

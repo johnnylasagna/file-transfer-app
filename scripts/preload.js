@@ -12,5 +12,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		});
 
 		return ipcRenderer.invoke('server:find');
-	}
+	},
+	openInDefaultBrowser: (url) => ipcRenderer.invoke('shell:openExternal', url)
 })

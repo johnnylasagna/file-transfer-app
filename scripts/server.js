@@ -9,6 +9,7 @@ const basicAuth = require('express-basic-auth');
 // Imports for serving and port finding
 const http = require('http');
 const net = require('net');
+const os = require('os');
 
 // Imports for downloading files
 const fs = require('fs');
@@ -18,6 +19,21 @@ const archiver = require('archiver');
 // Setup for server
 let expressServer = null;
 let bonjourService = null
+
+// Return wifi IP of host
+function getWifiIp() {
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+        if (name.toLowerCase().includes('wi-fi') || name.toLowerCase().includes('wlan')) {
+            for (const net of interfaces[name]) {
+                if (net.family === 'IPv4' && !net.internal) {
+                    return net.address;
+                }
+            }
+        }
+    }
+    return undefined; 
+}
 
 // To handle file open dialogue box
 async function handleFileOpen() {
@@ -147,6 +163,7 @@ async function startFolderServer(folderPath, hostname, username, password) {
 					// Security: Ensure file is within shared directory and exists
 					if (fullPath.startsWith(folderPath) && fs.existsSync(fullPath)) {
 						archive.file(fullPath, { name: path.basename(file) });
+						// Add fuctionality to download folders
 					}
 				});
 
@@ -163,19 +180,22 @@ async function startFolderServer(folderPath, hostname, username, password) {
 		expressServer.listen(port, () => {
 			const safeName = (hostname && hostname.trim() !== "") ? hostname : "LocalFolderServer";
 
+			const targetIp = getWifiIp();
+
 			if (!bonjourService) {
 				bonjourService = bonjour.publish({
 					name: safeName,
 					type: 'http',
 					port: port,
+					// host: targetIp,
 					probe: false
 				});
 
-				// Prevents service-name conflicts from crashing the Electron main process.
 				bonjourService.on('error', (err) => {
 					console.error('Bonjour publish error:', err.message);
 				});
 			}
+			console.log(`Server broadcasting on IP: ${targetIp || 'Default'}`);
 			resolve(port);
 		});
 

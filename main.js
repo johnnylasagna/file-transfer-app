@@ -1,4 +1,4 @@
-const { app } = require('electron')
+const { app, nativeTheme } = require('electron')
 const createWindow = require('./scripts/window');
 const { stopServer } = require('./scripts/server');
 const ipcHandlers = require('./scripts/ipcHandler');
@@ -6,6 +6,7 @@ const ipcHandlers = require('./scripts/ipcHandler');
 // Only runs when electron starts
 app.whenReady().then(() => {
 	ipcHandlers();
+	nativeTheme.themeSource = 'light';
 	createWindow();
 
 	// Only for MacOS

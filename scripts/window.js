@@ -9,7 +9,7 @@ const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
         height: 600,
-        titleBarStyle: 'hidden',
+        // titleBarStyle: 'hidden',
         resizable: true,
         // frame: false,
         // transparent: true,
@@ -19,7 +19,7 @@ const createWindow = () => {
     })
 
     // win.setMenuBarVisibility(null);
-
+    win.removeMenu();
 
     // File to load into browser window
     win.loadFile(path.join(__dirname, '../renderer/index.html'))

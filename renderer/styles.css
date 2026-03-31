@@ -3,6 +3,7 @@ body {
     background-color: var(--neutral-layer-1);
     color: var(--neutral-foreground-rest);
     padding: 16px;
+    padding-top: 8px;
     margin: 0;
 }
 

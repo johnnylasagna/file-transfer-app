@@ -22,17 +22,17 @@ let bonjourService = null
 
 // Return wifi IP of host
 function getWifiIp() {
-    const interfaces = os.networkInterfaces();
-    for (const name of Object.keys(interfaces)) {
-        if (name.toLowerCase().includes('wi-fi') || name.toLowerCase().includes('wlan')) {
-            for (const net of interfaces[name]) {
-                if (net.family === 'IPv4' && !net.internal) {
-                    return net.address;
-                }
-            }
-        }
-    }
-    return undefined; 
+	const interfaces = os.networkInterfaces();
+	for (const name of Object.keys(interfaces)) {
+		if (name.toLowerCase().includes('wi-fi') || name.toLowerCase().includes('wlan')) {
+			for (const net of interfaces[name]) {
+				if (net.family === 'IPv4' && !net.internal) {
+					return net.address;
+				}
+			}
+		}
+	}
+	return undefined;
 }
 
 // To handle file open dialogue box
@@ -126,6 +126,7 @@ async function startFolderServer(folderPath, hostname, username, password) {
 			realm: 'FileTransferApp'
 		}));
 
+		// Endpoint to download 
 		app.get('/api/files', (req, res) => {
 			const reqPath = req.query.path || '/'
 			const targetPath = path.join(folderPath, reqPath)
@@ -135,6 +136,7 @@ async function startFolderServer(folderPath, hostname, username, password) {
 				return res.status(403).json({ error: 'Forbidden' });
 			}
 
+			// Get all files from directory
 			fs.readdir(targetPath, { withFileTypes: true }, (err, files) => {
 				if (err) return res.status(500).json({ error: err.message });
 
@@ -145,38 +147,48 @@ async function startFolderServer(folderPath, hostname, username, password) {
 				}));
 				res.json(result);
 			});
-
-			// Endpoint to download multiple files 
-			app.post('/api/download-zip', (req, res) => {
-				const { files } = req.body;
-				if (!files || files.length === 0) {
-					return res.status(400).send("No files selected")
-				}
-
-				// Allow files to be directly zipped in memory
-				res.attachment('download.zip');
-				const archive = archiver('zip', { zlib: { level: 9 } });
-				archive.pipe(res);
-
-				files.forEach(file => {
-					const fullPath = path.join(folderPath, file);
-					// Security: Ensure file is within shared directory and exists
-					if (fullPath.startsWith(folderPath) && fs.existsSync(fullPath)) {
-						archive.file(fullPath, { name: path.basename(file) });
-						// Add fuctionality to download folders
-					}
-				});
-
-				archive.finalize();
-			})
 		})
 
+		// Endpoint to download multiple files 
+		app.post('/api/download-zip', (req, res) => {
+			const { files } = req.body;
+			if (!files || files.length === 0) {
+				return res.status(400).send("No files selected")
+			}
+
+			// Allow files to be directly zipped in memory
+			res.attachment('download.zip');
+			const archive = archiver('zip', { zlib: { level: 9 } });
+			archive.pipe(res);
+
+			files.forEach(file => {
+				const fullPath = path.join(folderPath, file);
+
+				const stats = fs.statSync(fullPath);
+
+				// Ensure file/folder is within shared directory and exists
+				if (fullPath.startsWith(folderPath) && fs.existsSync(fullPath)) {
+					if (stats.isFile()) {
+						archive.file(fullPath, { name: path.basename(file) });
+					} else if (stats.isDirectory()) {
+						archive.directory(fullPath, path.basename(file))
+					}
+				}
+			});
+
+			// Download zip
+			archive.finalize();
+		})
+
+		// Endpoint for previewing individual files
 		app.use('/preview', express.static(folderPath));
 
+		// Endpoint for access to website
 		app.use('/', express.static(path.join(__dirname, 'public')));
 
 		expressServer = http.createServer(app);
 
+		// Setup bonjour service on server
 		expressServer.listen(port, () => {
 			const safeName = (hostname && hostname.trim() !== "") ? hostname : "LocalFolderServer";
 

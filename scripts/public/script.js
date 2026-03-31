@@ -1,11 +1,13 @@
 const rootContainer = document.getElementById('file-list');
 let cart = new Set();
 
+// Get files at that folder
 async function fetchFiles(path) {
     const response = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
     return await response.json();
 }
 
+// Render files and folders recursively
 async function renderDirectory(path, containerElement) {
     containerElement.innerHTML = '<div style="padding: 8px;">Loading...</div>';
 
@@ -22,7 +24,6 @@ async function renderDirectory(path, containerElement) {
         folders.forEach(folder => {
             const item = document.createElement('fluent-accordion-item');
 
-            // 1. Create a single container for the entire header row
             const headingContainer = document.createElement('div');
             headingContainer.slot = 'heading';
 
@@ -91,6 +92,7 @@ async function renderDirectory(path, containerElement) {
     }
 }
 
+// Add remove items from downloads list
 function toggleCart(path, name) {
     if (cart.has(path)) {
         cart.delete(path);
@@ -100,6 +102,7 @@ function toggleCart(path, name) {
     updateCartUI();
 }
 
+// Update download list
 function updateCartUI() {
     const list = document.getElementById('cart-list');
     list.innerHTML = '';
@@ -125,6 +128,7 @@ function updateCartUI() {
     }
 }
 
+// Download all selected files as zip
 async function downloadCartAsZip() {
     const files = Array.from(cart);
     const response = await fetch('/api/download-zip', {

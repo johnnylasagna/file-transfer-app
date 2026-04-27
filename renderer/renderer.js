@@ -17,6 +17,17 @@ const passwordInput = document.getElementById('passwordInput')
 const refreshServersBtn = document.getElementById('refreshServersBtn')
 const serversAccordion = document.getElementById('serversAccordion')
 
+// Download view Elements
+const downloadViewFrame = document.getElementById('downloadFrame')
+
+// Tabs
+const tabs = document.getElementById('settingsTabs')
+
+function setDownloadView(url) {
+    downloadViewFrame.setAttribute('src', url)
+    tabs.setAttribute('activeid', 'downloadTab')
+}
+
 // Changes current shared folder
 folderBtn.addEventListener('click', async () => {
     const folderPath = await window.electronAPI.openFolder()
@@ -105,7 +116,8 @@ function createServerAccordionItem(server) {
         openButton.style.marginTop = '10px';
         openButton.textContent = `Open ${ip}`;
         openButton.addEventListener('click', () => {
-            window.electronAPI.openInDefaultBrowser(`http://${ip}:${server.port}`);
+            // console.log(`http://${ip}:${server.port}`);
+            setDownloadView(`http://${ip}:${server.port}`);
         });
         buttonsContainer.appendChild(openButton);
     });

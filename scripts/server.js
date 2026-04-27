@@ -4,7 +4,6 @@ const { dialog } = require('electron')
 // Imports for server
 const bonjour = require('bonjour')();
 const express = require('express');
-const basicAuth = require('express-basic-auth');
 
 // Imports for serving and port finding
 const http = require('http');
@@ -117,14 +116,57 @@ async function startFolderServer(folderPath, hostname, username, password) {
 		}
 
 		const app = express();
-		app.use(express.json());
+		const cookieParser = require('cookie-parser');
+		const jwt = require('jsonwebtoken');
+		const crypto = require('crypto');
+		const SECRET_KEY = crypto.randomBytes(64).toString('hex');
 
-		// Require password for all routes
-		app.use(basicAuth({
-			users: { [username]: password },
-			challenge: true,
-			realm: 'FileTransferApp'
-		}));
+		app.use(express.json());
+		app.use(cookieParser());
+
+		// Login endpoint
+		app.post('/api/login', (req, res) => {
+			const { user, pass } = req.body;
+			const expectedUser = username || '';
+			const expectedPass = password || '';
+			const actualUser = user || '';
+			const actualPass = pass || '';
+			if (actualUser === expectedUser && actualPass === expectedPass) {
+				const token = jwt.sign({ user: actualUser }, SECRET_KEY, { expiresIn: '12h' });
+				res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
+				res.json({ success: true });
+			} else {
+				console.log('Login failed: Expected', expectedUser, expectedPass, 'Got', actualUser, actualPass);
+				res.status(401).json({ error: 'Invalid credentials' });
+			}
+		});
+
+		// Auth middleware
+		const authMiddleware = (req, res, next) => {
+			if (req.path === '/login.html' || req.path === '/styles.css' || req.path === '/api/login') {
+				return next();
+			}
+			const token = req.cookies.token;
+			if (!token) {
+				if (req.path.startsWith('/api/') || req.path.startsWith('/preview/')) {
+					return res.status(401).json({ error: 'Unauthorized' });
+				}
+				return res.redirect('/login.html');
+			}
+			try {
+				jwt.verify(token, SECRET_KEY);
+				if (req.path === '/') {
+					return next();
+				}
+				next();
+			} catch (err) {
+				if (req.path.startsWith('/api/') || req.path.startsWith('/preview/')) {
+					return res.status(401).json({ error: 'Unauthorized' });
+				}
+				return res.redirect('/login.html');
+			}
+		};
+		app.use(authMiddleware);
 
 		// Endpoint to download 
 		app.get('/api/files', (req, res) => {

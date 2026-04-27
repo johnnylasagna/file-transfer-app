@@ -3,8 +3,11 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<meta http-equiv="Content-Security-Policy"
-		content="default-src 'self'; script-src 'self' 'unsafe-eval' https://unpkg.com type='module'; style-src 'self' 'unsafe-inline'" />
+	<meta http-equiv="Content-Security-Policy" content="
+		default-src 'self';
+		script-src 'self' 'unsafe-eval' https://unpkg.com;
+		style-src 'self' 'unsafe-inline';
+		frame-src *;" />
 	<title>FilezTransfer</title>
 	<link rel="stylesheet" href="./styles.css">
 	<script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
@@ -16,6 +19,7 @@
 		<fluent-tab id="hostTab">Host Settings</fluent-tab>
 		<fluent-tab id="authTab">Authentication Settings</fluent-tab>
 		<fluent-tab id="findTab">Find Servers</fluent-tab>
+		<fluent-tab id="downloadTab">Download Files</fluent-tab>
 
 		<fluent-tab-panel id="serverPanel">
 			<div class="panel-content">
@@ -61,6 +65,15 @@
 					<fluent-button id="refreshServersBtn" appearance="neutral">Scan for Servers</fluent-button>
 				</div>
 				<fluent-accordion id="serversAccordion"></fluent-accordion>
+			</div>
+		</fluent-tab-panel>
+
+		<fluent-tab-panel id="downloadPanel">
+			<div class="panel-content">
+				<div class="control-group" style="justify-content: space-between;">
+					<fluent-label weight="semibold">Select a link from the servers page to see download page</fluent-label>
+				</div>
+				<webview id="downloadFrame" style="width: 100%; height: 100%; border: none; flex-grow: 1;"></webview>
 			</div>
 		</fluent-tab-panel>
 	</fluent-tabs>

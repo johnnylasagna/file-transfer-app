@@ -9,9 +9,6 @@ function ipcHandlers() {
     ipcMain.handle('server:start', async (event, folderPath, hostname, username, password) => { return await startFolderServer(folderPath, hostname, username, password) })
     ipcMain.handle('server:stop', async (event) => { return await stopServer(); })
     ipcMain.handle('server:find', async (event) => { return await findServers(event); })
-    ipcMain.handle('shell:openExternal', async (_event, url) => {
-        return shell.openExternal(url)
-    })
 }
 
 module.exports = ipcHandlers;

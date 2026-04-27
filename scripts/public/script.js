@@ -1,6 +1,10 @@
 const rootContainer = document.getElementById('file-list');
 let cart = new Set();
 
+function openPreview(url) {
+    window.open(url, '_blank');
+}
+
 // Get files at that folder
 async function fetchFiles(path) {
     const response = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
@@ -78,7 +82,7 @@ async function renderDirectory(path, containerElement) {
             fileDiv.innerHTML = `
                 <span class="file">${file.name}</span>
                 <div class="item-actions">
-                    <fluent-button appearance="neutral" onclick="window.open('/preview${file.relativePath}', '_blank')">Preview</fluent-button>
+                    <fluent-button appearance="neutral" onclick="openPreview('/preview${file.relativePath}')">Preview</fluent-button>
                     <fluent-button appearance="accent" onclick="toggleCart('${file.relativePath}', '${file.name}')">Add to Downloads</fluent-button>
                 </div>
             `;

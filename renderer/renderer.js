@@ -20,6 +20,9 @@ const serversAccordion = document.getElementById('serversAccordion')
 // Download view Elements
 const downloadViewFrame = document.getElementById('downloadFrame')
 
+// Preview Elements
+const previewFrame = document.getElementById('previewFrame')
+
 // Tabs
 const tabs = document.getElementById('settingsTabs')
 
@@ -27,6 +30,23 @@ function setDownloadView(url) {
     downloadViewFrame.setAttribute('src', url)
     tabs.setAttribute('activeid', 'downloadTab')
 }
+
+function setPreviewView(url) {
+    previewFrame.setAttribute('src', url)
+    tabs.setAttribute('activeid', 'previewTab')
+}
+
+downloadViewFrame.addEventListener('new-window', (event) => {
+    event.preventDefault()
+    setPreviewView(event.url)
+})
+
+downloadViewFrame.addEventListener('did-create-window', (event) => {
+    event.preventDefault()
+    if (event.url) {
+        setPreviewView(event.url)
+    }
+})
 
 // Changes current shared folder
 folderBtn.addEventListener('click', async () => {
